@@ -14,7 +14,7 @@ class userController {
 				domain:
 					process.env.NODE_ENV === "development"
 						? "localhost"
-						: "ginger-front-end.vercel.app/",
+						: "ginger-front-end.vercel.app",
 			});
 			return res.json(userData);
 		} catch (error) {
@@ -33,7 +33,7 @@ class userController {
 				domain:
 					process.env.NODE_ENV === "development"
 						? "localhost"
-						: "ginger-front-end.vercel.app/",
+						: "ginger-front-end.vercel.app",
 			});
 			return res.json(userData);
 		} catch (error) {
