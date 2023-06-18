@@ -12,7 +12,9 @@ class userController {
 				httpOnly: true,
 				secure: true,
 				domain:
-					process.env.NODE_ENV === "development" ? "localhost" : "vercel.app",
+					process.env.NODE_ENV === "development"
+						? "localhost"
+						: "ginger-front-end.vercel.app/",
 			});
 			return res.json(userData);
 		} catch (error) {
@@ -29,7 +31,9 @@ class userController {
 				httpOnly: true,
 				secure: true,
 				domain:
-					process.env.NODE_ENV === "development" ? "localhost" : "vercel.app",
+					process.env.NODE_ENV === "development"
+						? "localhost"
+						: "ginger-front-end.vercel.app/",
 			});
 			return res.json(userData);
 		} catch (error) {
