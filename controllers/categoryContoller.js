@@ -5,7 +5,8 @@ class categotyContoller {
 	async create(req, res, next) {
 		try {
 			const { name } = req.body;
-			const category = await categotyService.create(name);
+			const { photoUrl } = req.files;
+			const category = await categotyService.create(name, photoUrl);
 			return res.json(category);
 		} catch (error) {
 			next(error);

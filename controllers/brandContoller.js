@@ -5,7 +5,8 @@ class categotyContoller {
 	async create(req, res, next) {
 		try {
 			const { name } = req.body;
-			const brand = await brandService.create(name);
+			const { photoUrl } = req.files;
+			const brand = await brandService.create(name, photoUrl);
 			return res.json(brand);
 		} catch (error) {
 			next(error);
@@ -13,9 +14,11 @@ class categotyContoller {
 	}
 
 	async getAll(req, res, next) {
-		const brands = await brandService.getAll();
-		return res.json(brands);
 		try {
+			const { limit } = req.query;
+			console.log(limit);
+			const brands = await brandService.getAll();
+			return res.json(brands);
 		} catch (error) {
 			next(error);
 		}

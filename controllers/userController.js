@@ -1,17 +1,12 @@
 const userService = require("../service/userService");
-const { validationResult } = require("express-validator");
+
 const ApiErorr = require("../exceptions/api-error");
-const { json } = require("express");
 
 class userController {
 	async singUp(req, res, next) {
 		try {
-			const errors = validationResult(req);
-			if (!errors.isEmpty()) {
-				return next(ApiErorr.BadRequests("validation error", errors.array()));
-			}
-			const { email, password } = req.body;
-			const userData = await userService.singUp(email, password);
+			const { name, surname, email, password } = req.body;
+			const userData = await userService.singUp(name, surname, email, password);
 			res.cookie("refreshToken", userData.refreshToken, {
 				maxAge: 30 * 24 * 60 * 60 * 1000,
 				httpOnly: true,
@@ -30,6 +25,40 @@ class userController {
 				maxAge: 30 * 24 * 60 * 60 * 1000,
 				httpOnly: true,
 			});
+			return res.json(userData);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	async updatePassword(req, res, next) {
+		try {
+			const userId = req.user._id;
+			const { password, newPassword } = req.body;
+			const userData = await userService.updatePassword(
+				userId,
+				password,
+				newPassword
+			);
+
+			return res.json(userData);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	async addUserAddress(req, res, next) {
+		try {
+			const userId = req.user._id;
+			const { city, address, postalCode, country } = req.body;
+			const userData = await userService.addUserAddress(
+				userId,
+				city,
+				address,
+				postalCode,
+				country
+			);
+
 			return res.json(userData);
 		} catch (error) {
 			next(error);
@@ -71,10 +100,11 @@ class userController {
 		}
 	}
 
-	async getUsers(req, res, next) {
+	async getRole(req, res, next) {
 		try {
-			const users = await userService.getAllUsers();
-			return res.json(users);
+			const { role } = req.user;
+			console.log("role: " + role);
+			return res.json(role);
 		} catch (error) {
 			next(error);
 		}

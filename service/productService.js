@@ -27,8 +27,6 @@ class productService {
 			description: item.description,
 		}));
 
-		// console.log(deviceInfoArray);
-
 		const product = await ProductModel.create({
 			title,
 			price,
@@ -46,19 +44,35 @@ class productService {
 	}
 
 	async getAll(query) {
-		const { categories, brands, minPrice, maxPrice, slug } = query;
+		const {
+			categories,
+			brands,
+			colors,
+			minPrice,
+			maxPrice,
+			slug,
+			sortBy,
+			sortOrder,
+			page = 1,
+			limit = 12,
+		} = query;
 
+		// filtering
 		const filter = {};
 
 		if (categories) {
-			const categoriesArr = categories
-				.split(",")
-				.map((category) => ({ category }));
-			filter.$or = categoriesArr;
+			const categoriesArr = categories.split(",");
+			filter.category = { $in: categoriesArr };
 		}
+
 		if (brands) {
-			const brandsArr = brands.split(",").map((brand) => ({ brand }));
-			filter.$or = brandsArr;
+			const brandsArr = brands.split(",");
+			filter.brand = { $in: brandsArr };
+		}
+
+		if (colors) {
+			const colorsArr = colors.split(",");
+			filter.color = { $in: colorsArr };
 		}
 
 		if (minPrice && maxPrice) {
@@ -73,11 +87,33 @@ class productService {
 			filter.$or = [{ title: new RegExp(slug, "i") }];
 		}
 
+		// sorting
+		let sort = {};
+		if (sortBy === "name") {
+			sort = { title: sortOrder === "asc" ? 1 : -1 };
+		} else if (sortBy === "price") {
+			sort = { price: sortOrder === "asc" ? 1 : -1 };
+		}
+
+		// pagination
+		const skip = (page - 1) * limit;
+		const totalProducts = await ProductModel.countDocuments(filter);
+		const totalPages = Math.ceil(totalProducts / limit);
+
 		const products = await ProductModel.find(filter)
 			.populate("category", "name")
 			.populate("brand", "name")
-			.populate("color");
-		return products;
+			.populate("color")
+			.sort(sort)
+			.skip(skip)
+			.limit(limit);
+
+		return {
+			products,
+			currentPage: page,
+			totalPages,
+			totalProducts,
+		};
 	}
 
 	async getOne(id) {
@@ -85,6 +121,76 @@ class productService {
 			.populate("category", "name")
 			.populate("brand", "name")
 			.populate("color");
+
+		if (!product) {
+			console.log("PRODUCT NOT FOUND");
+			throw ApiError.BadRequests("Product not found");
+		}
+
+		return product;
+	}
+
+	async createReview(name, rating, comment, productId, userId) {
+		const product = await ProductModel.findById(productId);
+
+		if (!product) {
+			throw ApiError.BadRequests("Product not found");
+		}
+
+		const alreadyReviewed = product.reviews.find(
+			(r) => r.user.toString() === userId.toString()
+		);
+
+		if (alreadyReviewed) {
+			throw ApiError.BadRequests("Product already reviewed");
+		}
+
+		const review = {
+			name,
+			rating: Number(rating),
+			comment,
+			user: userId,
+		};
+
+		product.reviews.push(review);
+		product.nubReviews = product.reviews.length;
+
+		product.rating =
+			product.reviews.reduce((acc, review) => review.rating + acc, 0) /
+			product.reviews.length;
+
+		await product.save();
+		return product;
+	}
+
+	async deleteReview(productId, reviewId, userId) {
+		const product = await ProductModel.findById(productId);
+
+		if (!product) {
+			throw ApiError.BadRequests("Product not found");
+		}
+
+		const review = product.reviews.find(
+			(r) =>
+				r._id.toString() === reviewId.toString() &&
+				r.user.toString() === userId.toString()
+		);
+
+		if (!review) {
+			throw ApiError.BadRequests("Review not found or unauthorized");
+		}
+
+		product.reviews.remove(review);
+		product.nubReviews = product.reviews.length;
+		if (product.reviews.length > 0) {
+			product.rating =
+				product.reviews.reduce((acc, review) => review.rating + acc, 0) /
+				product.reviews.length;
+		} else {
+			product.rating = 0;
+		}
+
+		await product.save();
 		return product;
 	}
 }

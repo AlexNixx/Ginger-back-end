@@ -3,7 +3,9 @@ const router = new Router();
 
 const colorController = require("../controllers/colorController");
 
-router.post("/", colorController.create);
+const checkRoleMiddleware = require("../middlewares/checkRole-middleware");
+
+router.post("/", checkRoleMiddleware("ADMIN"), colorController.create);
 router.get("/", colorController.getAll);
 
 module.exports = router;

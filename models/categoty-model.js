@@ -5,6 +5,9 @@ const CategotySchema = new Schema({
 		type: String,
 		required: true,
 	},
+	photoUrl: {
+		type: String,
+	},
 });
 
 module.exports = model("Category", CategotySchema);

@@ -3,10 +3,9 @@ const router = new Router();
 
 const categoryContoller = require("../controllers/categoryContoller");
 
-// const checkRoleMiddleware = require("../middlewares/checkRole-middleware");
+const checkRoleMiddleware = require("../middlewares/checkRole-middleware");
 
-// router.post("/", checkRole("ADMIN"), categoryContoller.create);
-router.post("/", categoryContoller.create);
+router.post("/", checkRoleMiddleware("ADMIN"), categoryContoller.create);
 router.get("/", categoryContoller.getAll);
 
 module.exports = router;

@@ -1,5 +1,21 @@
 const { Schema, model } = require("mongoose");
 
+const ReviewSchema = new Schema(
+	{
+		name: { type: String, require: true },
+		rating: { type: Number, require: true },
+		comment: { type: String, require: true },
+		user: {
+			type: Schema.Types.ObjectId,
+			ref: "User",
+			required: true,
+		},
+	},
+	{
+		timestamps: true,
+	}
+);
+
 const ProductSchema = new Schema({
 	title: {
 		type: String,
@@ -43,6 +59,18 @@ const ProductSchema = new Schema({
 	],
 	photoUrl: {
 		type: String,
+	},
+	reviews: [ReviewSchema],
+
+	rating: {
+		type: Number,
+		require: true,
+		default: 0,
+	},
+	nubReviews: {
+		type: Number,
+		require: true,
+		default: 0,
 	},
 });
 

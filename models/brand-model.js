@@ -5,6 +5,9 @@ const BrandSchema = new Schema({
 		type: String,
 		required: true,
 	},
+	photoUrl: {
+		type: String,
+	},
 });
 
 module.exports = model("Brand", BrandSchema);
