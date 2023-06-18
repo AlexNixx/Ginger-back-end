@@ -10,8 +10,8 @@ class userController {
 			res.cookie("refreshToken", userData.refreshToken, {
 				maxAge: 30 * 24 * 60 * 60 * 1000,
 				httpOnly: true,
-				secure: true,
-				domain: "vercel.app",
+				domain:
+					process.env.NODE_ENV === "development" ? "localhost" : "vercel.com",
 			});
 			return res.json(userData);
 		} catch (error) {
@@ -26,8 +26,8 @@ class userController {
 			res.cookie("refreshToken", userData.refreshToken, {
 				maxAge: 30 * 24 * 60 * 60 * 1000,
 				httpOnly: true,
-				secure: true,
-				domain: "vercel.app",
+				domain:
+					process.env.NODE_ENV === "development" ? "localhost" : "vercel.com",
 			});
 			return res.json(userData);
 		} catch (error) {
