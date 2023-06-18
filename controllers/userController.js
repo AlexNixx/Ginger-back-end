@@ -11,6 +11,7 @@ class userController {
 				maxAge: 30 * 24 * 60 * 60 * 1000,
 				httpOnly: true,
 				secure: true,
+				domain: "vercel.app",
 			});
 			return res.json(userData);
 		} catch (error) {
@@ -26,6 +27,7 @@ class userController {
 				maxAge: 30 * 24 * 60 * 60 * 1000,
 				httpOnly: true,
 				secure: true,
+				domain: "vercel.app",
 			});
 			return res.json(userData);
 		} catch (error) {
