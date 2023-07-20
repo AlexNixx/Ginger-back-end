@@ -19,4 +19,8 @@ module.exports = class ApiError extends Error {
 	static Forbidden() {
 		return new ApiError(403, "Forbidden");
 	}
+
+	static ServerError() {
+		return new ApiError(500, "Server Error");
+	}
 };

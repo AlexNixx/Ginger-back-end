@@ -7,18 +7,22 @@ module.exports = function (req, res, next) {
 		if (!authorizationHeader) {
 			return next(ApiErorr.UnautorizedError());
 		}
+
 		const accessToken = authorizationHeader.split(" ")[1];
 		if (!accessToken) {
 			return next(ApiErorr.UnautorizedError());
 		}
+
 		const userData = tokenService.validateAccessToken(accessToken);
 		if (!userData) {
 			return next(ApiErorr.UnautorizedError());
 		}
 
 		req.user = userData;
+
 		next();
 	} catch (error) {
-		return next(ApiErorr.UnautorizedError());
+		console.log(error);
+		return next(ApiErorr.ServerError());
 	}
 };
