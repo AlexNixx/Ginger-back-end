@@ -19,8 +19,12 @@ if (process.env.NODE_ENV === "development") {
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(cors({ credentials: true, origin: `${process.env.CLIENT_URL}` }));
-app.use(cors({ credentials: true, origin: `${process.env.ADMIN_URL}` }));
+app.use(
+	cors(
+		{ credentials: true, origin: `${process.env.CLIENT_URL}` },
+		{ credentials: true, origin: `${process.env.ADMIN_URL}` }
+	)
+);
 
 app.use(express.static(path.resolve(__dirname, "static")));
 app.use(fileUpload({}));
