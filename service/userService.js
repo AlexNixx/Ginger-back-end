@@ -8,7 +8,6 @@ const mailService = require("./mailService");
 const tokenService = require("./tokenService");
 
 const UserDto = require("../dtos/user-dto");
-const userModel = require("../models/user-model");
 
 class userService {
 	async singUp(name, surname, email, password) {
@@ -120,7 +119,7 @@ class userService {
 	}
 
 	async activate(activationLink) {
-		const user = await userModel.findOne({ activationLink });
+		const user = await UserModel.findOne({ activationLink });
 		if (!user) {
 			throw ApiError.BadRequests("invalid link");
 		}
@@ -137,7 +136,7 @@ class userService {
 		if (!userData || !tokenFromDB) {
 			throw ApiError.UnautorizedError();
 		}
-		const user = await userModel.findById(userData.id);
+		const user = await UserModel.findById(userData.id);
 		const userDto = new UserDto(user); //id, email, isActivated, role
 		const tokens = tokenService.generateTokens({ ...userDto });
 		await tokenService.saveToken(userDto.id, tokens.refreshToken);
@@ -146,6 +145,60 @@ class userService {
 			...tokens,
 			user: userDto,
 		};
+	}
+
+	async getAllUsers({ page, limit, userEmail }) {
+		const query = {};
+
+		if (!limit || !page) {
+			throw ApiError.BadRequests("Missing parameters");
+		}
+
+		if (userEmail) {
+			query.email = new RegExp(userEmail, "i");
+		}
+
+		// pagination
+		const skip = (page - 1) * limit;
+		const totalUsers = await UserModel.countDocuments(query);
+		const totalPages = Math.ceil(totalUsers / limit);
+
+		const users = await UserModel.find(query).skip(skip).limit(limit);
+		const usersDto = users.map((user) => {
+			const userDto = new UserDto(user);
+			return {
+				...userDto,
+			};
+		});
+
+		return { users: usersDto, currentPage: page, totalPages, totalUsers };
+	}
+
+	async deleteUser(userId) {
+		const user = await UserModel.findByIdAndDelete(userId);
+
+		if (!user) {
+			throw ApiError.BadRequests("User not found");
+		}
+		return user;
+	}
+
+	async updateUser(userId) {
+		const user = await UserModel.findById(userId);
+
+		if (!user) {
+			throw ApiError.BadRequests("User not found");
+		}
+
+		if (user.role === "USER") {
+			user.role = "ADMIN";
+		} else {
+			user.role = "USER";
+		}
+
+		await user.save();
+
+		return user;
 	}
 }
 

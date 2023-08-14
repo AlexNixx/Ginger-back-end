@@ -14,8 +14,38 @@ class colorController {
 
 	async getAll(req, res, next) {
 		try {
-			const colors = await colorService.getAll();
+			const query = req.query;
+			const colors = await colorService.getAll(query);
 			return res.json(colors);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	async getOne(req, res, next) {
+		try {
+			const color = await colorService.getOne(req.params.id);
+			return res.json(color);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	async updateColor(req, res, next) {
+		try {
+			const color = await colorService.updateColor(req.params.id, req.body);
+
+			return res.json(color);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	async deleteColor(req, res, next) {
+		try {
+			const color = await colorService.deleteColor(req.params.id);
+
+			return res.json(color);
 		} catch (error) {
 			next(error);
 		}

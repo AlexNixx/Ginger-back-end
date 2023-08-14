@@ -18,14 +18,14 @@ class productService {
 		let photoName = uuid.v4() + ".jpg";
 		photoUrl.mv(path.resolve(__dirname, "..", "static", photoName));
 
-		const info = JSON.parse(deviceInfo);
-		console.log(deviceInfo);
-		console.log(info);
-
-		const deviceInfoArray = info.map((item) => ({
-			title: item.title,
-			description: item.description,
-		}));
+		let info = [];
+		try {
+			if (deviceInfo) {
+				info = JSON.parse(deviceInfo);
+			}
+		} catch (error) {
+			console.error("Error parsing deviceInfo:", error);
+		}
 
 		const product = await ProductModel.create({
 			title,
@@ -41,6 +41,57 @@ class productService {
 		return {
 			product,
 		};
+	}
+
+	async updateProduct(productId, body, files) {
+		const { title, price, category, brand, color, inStock, deviceInfo } = body;
+
+		let photoName; // Initialize photoName to null
+
+		if (files?.photoUrl) {
+			// Check if req.files exists and contains the photoUrl property
+			const { photoUrl } = files;
+			photoName = uuid.v4() + ".jpg";
+			photoUrl.mv(path.resolve(__dirname, "..", "static", photoName));
+		}
+
+		// let photoName = uuid.v4() + ".jpg";
+		// photoUrl.mv(path.resolve(__dirname, "..", "static", photoName));
+
+		const info = JSON.parse(deviceInfo);
+
+		const updateData = {
+			title,
+			price,
+			category,
+			brand,
+			color,
+			inStock,
+			deviceInfo: info,
+			photoUrl: photoName,
+		};
+
+		const product = await ProductModel.findByIdAndUpdate(
+			productId,
+			updateData,
+			{
+				new: true, // Return the updated product instead of the old one
+				runValidators: true, // Run model validators on update
+			}
+		);
+
+		return {
+			product,
+		};
+	}
+
+	async deleteProduct(productId) {
+		const product = await ProductModel.findByIdAndDelete(productId);
+
+		if (!product) {
+			throw ApiError.BadRequests("Product not found");
+		}
+		return product;
 	}
 
 	async getAll(query) {

@@ -26,6 +26,31 @@ class productContoller {
 		}
 	}
 
+	async deleteProduct(req, res, next) {
+		try {
+			const productId = req.params.id;
+			const product = await productService.deleteProduct(productId);
+
+			return res.json(product);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	async updateProduct(req, res, next) {
+		try {
+			const deviceData = await productService.updateProduct(
+				req.params.id,
+				req.body,
+				req.files
+			);
+
+			return res.json(deviceData);
+		} catch (error) {
+			next(error);
+		}
+	}
+
 	async getAll(req, res, next) {
 		try {
 			const query = req.query;

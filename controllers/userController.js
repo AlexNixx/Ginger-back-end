@@ -113,8 +113,40 @@ class userController {
 	async getRole(req, res, next) {
 		try {
 			const { role } = req.user;
-			console.log("role: " + role);
+
 			return res.json(role);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	async getAllUsers(req, res, next) {
+		try {
+			const query = req.query;
+			const users = await userService.getAllUsers(query);
+
+			return res.json(users);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	async deleteUser(req, res, next) {
+		try {
+			const userId = req.params.id;
+			const user = await userService.deleteUser(userId);
+
+			return res.json(user);
+		} catch (error) {
+			next(error);
+		}
+	}
+	async updateUser(req, res, next) {
+		try {
+			const userId = req.params.id;
+			const user = await userService.updateUser(userId);
+
+			return res.json(user);
 		} catch (error) {
 			next(error);
 		}
