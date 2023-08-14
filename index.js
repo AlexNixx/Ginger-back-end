@@ -19,25 +19,8 @@ if (process.env.NODE_ENV === "development") {
 app.use(express.json());
 app.use(cookieParser());
 
-const allowedOrigins = [
-	process.env.CLIENT_URL, // Main client app URL
-	process.env.ADMIN_URL, // Admin app URL
-];
-
-// app.use(cors({ credentials: true, origin: `${process.env.CLIENT_URL}` }));
-app.use(
-	cors({
-		credentials: true,
-		origin: (origin, callback) => {
-			// Check if the request origin is in the allowed origins list
-			if (allowedOrigins.includes(origin)) {
-				callback(null, true);
-			} else {
-				callback(new Error("Not allowed by CORS"));
-			}
-		},
-	})
-);
+app.use(cors({ credentials: true, origin: `${process.env.CLIENT_URL}` }));
+app.use(cors({ credentials: true, origin: `${process.env.ADMIN_URL}` }));
 
 app.use(express.static(path.resolve(__dirname, "static")));
 app.use(fileUpload({}));
